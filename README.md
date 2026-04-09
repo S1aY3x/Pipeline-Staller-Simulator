@@ -1,2 +1,20 @@
-# Pipeline-Staller-Simulator
-Browser-based 5-stage MIPS pipeline simulator. Visualizes RAW, Load-Use, Control, Structural &amp; Cache hazards in real time. Toggle forwarding and branch prediction, compare CPI instantly. 
+# PipelineOS — Pipeline Staller Simulator
+
+Interactive browser-based simulator for visualizing hazards in the 5-stage MIPS pipeline (IF → ID → EX → MEM → WB).
+
+## Features
+- Detects RAW, Load-Use, Control, Structural, and Cache hazards
+- Toggle Data Forwarding, Branch Prediction, Structural Hazards, Cache Simulation
+- 7 preset programs covering every hazard class
+- 9 live metrics: CPI, efficiency, stall cycles, hazard counts
+- Forwarding arc overlays on the pipeline diagram
+- Dark / light theme
+- Zero dependencies — single HTML file
+
+## Usage
+Open `index.html` in any browser. No installation needed.
+
+## Team
+Shivam Raval, Rajdeepsinh Rathod, Kadivar Nazisraza, Mayur Baldaniya, Soham Vora, Naman Panwar  
+Under the guidance of Dr. Varun Kumar  
+IIIT Vadodara — International Campus, Diu
