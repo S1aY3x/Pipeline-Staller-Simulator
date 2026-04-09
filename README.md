@@ -14,7 +14,3 @@ Interactive browser-based simulator for visualizing hazards in the 5-stage MIPS 
 ## Usage
 Open `index.html` in any browser. No installation needed.
 
-## Team
-Shivam Raval, Rajdeepsinh Rathod, Kadivar Nazisraza, Mayur Baldaniya, Soham Vora, Naman Panwar  
-Under the guidance of Dr. Varun Kumar  
-IIIT Vadodara — International Campus, Diu
