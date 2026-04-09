@@ -1,0 +1,3074 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>PipelineOS — 5-Stage MIPS Simulator</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet">
+  <style>
+/* ═══════════════════════════════════════════
+   PipelineOS — Premium CSS
+   ═══════════════════════════════════════════ */
+
+/* ─── FONTS ─── */
+@import url('https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap');
+
+/* ─── TOKENS DARK ─── */
+:root,
+[data-theme="dark"] {
+  --bg:         #0a0c14;
+  --bg2:        #0f1120;
+  --bg3:        #141729;
+  --surface:    rgba(20, 23, 42, 0.85);
+  --surface2:   rgba(28, 32, 55, 0.7);
+  --surface3:   rgba(36, 41, 68, 0.5);
+  --border:     rgba(100, 120, 200, 0.12);
+  --border2:    rgba(100, 120, 200, 0.07);
+  --border-glow:rgba(120, 150, 255, 0.3);
+  --text:       #e8eaf6;
+  --text2:      #a0a8cc;
+  --muted:      #5a6080;
+
+  --accent:     #6c8ef5;
+  --accent2:    #a78bfa;
+  --accent3:    #38bdf8;
+  --green:      #4ade80;
+  --red:        #f87171;
+  --yellow:     #facc15;
+  --purple:     #c084fc;
+  --teal:       #2dd4bf;
+  --orange:     #fb923c;
+
+  --green-dim:  rgba(74,222,128,.12);
+  --red-dim:    rgba(248,113,113,.12);
+  --yellow-dim: rgba(250,204,21,.12);
+  --purple-dim: rgba(192,132,252,.12);
+  --teal-dim:   rgba(45,212,191,.12);
+  --orange-dim: rgba(251,146,60,.12);
+  --accent-dim: rgba(108,142,245,.15);
+  --accent2-dim:rgba(167,139,250,.12);
+
+  /* Stage colors */
+  --c-if:    #1e3a8a; --c-if-t:  #60a5fa; --c-if-b:  #2563eb;
+  --c-id:    #14532d; --c-id-t:  #4ade80; --c-id-b:  #16a34a;
+  --c-ex:    #713f12; --c-ex-t:  #facc15; --c-ex-b:  #ca8a04;
+  --c-mem:   #3b0764; --c-mem-t: #c084fc; --c-mem-b: #9333ea;
+  --c-wb:    #0c4a6e; --c-wb-t:  #38bdf8; --c-wb-b:  #0ea5e9;
+  --c-stall: #450a0a; --c-stall-t:#f87171; --c-stall-b:#dc2626;
+  --c-fwd:   #164e63; --c-fwd-t: #2dd4bf; --c-fwd-b: #0d9488;
+  --c-flush: #422006; --c-flush-t:#fb923c; --c-flush-b:#ea580c;
+  --c-struct:#2e1065; --c-struct-t:#e879f9; --c-struct-b:#a21caf;
+  --c-cache: #431407; --c-cache-t:#fdba74; --c-cache-b:#c2410c;
+  --c-empty: transparent;
+
+  --shadow-sm: 0 2px 8px rgba(0,0,0,0.4);
+  --shadow-md: 0 4px 24px rgba(0,0,0,0.5);
+  --shadow-lg: 0 8px 48px rgba(0,0,0,0.6);
+  --glow:      0 0 20px rgba(108,142,245,.2);
+}
+
+/* ─── TOKENS LIGHT ─── */
+[data-theme="light"] {
+  --bg:         #f0f2fa;
+  --bg2:        #e8eaf6;
+  --bg3:        #dde1f4;
+  --surface:    rgba(255, 255, 255, 0.92);
+  --surface2:   rgba(240, 242, 252, 0.85);
+  --surface3:   rgba(230, 234, 250, 0.7);
+  --border:     rgba(60, 80, 180, 0.12);
+  --border2:    rgba(60, 80, 180, 0.07);
+  --border-glow:rgba(80, 110, 220, 0.25);
+  --text:       #1a1e38;
+  --text2:      #4a5080;
+  --muted:      #8890b0;
+
+  --accent:     #3b5fe8;
+  --accent2:    #7c3aed;
+  --accent3:    #0284c7;
+  --green:      #16a34a;
+  --red:        #dc2626;
+  --yellow:     #b45309;
+  --purple:     #7c3aed;
+  --teal:       #0891b2;
+  --orange:     #ea580c;
+
+  --green-dim:  rgba(22,163,74,.1);
+  --red-dim:    rgba(220,38,38,.1);
+  --yellow-dim: rgba(180,83,9,.1);
+  --purple-dim: rgba(124,58,237,.1);
+  --teal-dim:   rgba(8,145,178,.1);
+  --orange-dim: rgba(234,88,12,.1);
+  --accent-dim: rgba(59,95,232,.1);
+  --accent2-dim:rgba(124,58,237,.1);
+
+  /* Stage colors */
+  --c-if:    #dbeafe; --c-if-t:  #1d4ed8; --c-if-b:  #93c5fd;
+  --c-id:    #dcfce7; --c-id-t:  #15803d; --c-id-b:  #86efac;
+  --c-ex:    #fefce8; --c-ex-t:  #92400e; --c-ex-b:  #fde047;
+  --c-mem:   #f3e8ff; --c-mem-t: #6d28d9; --c-mem-b: #d8b4fe;
+  --c-wb:    #e0f2fe; --c-wb-t:  #0c4a6e; --c-wb-b:  #7dd3fc;
+  --c-stall: #fee2e2; --c-stall-t:#b91c1c; --c-stall-b:#fca5a5;
+  --c-fwd:   #ccfbf1; --c-fwd-t: #0f766e; --c-fwd-b: #5eead4;
+  --c-flush: #fff7ed; --c-flush-t:#c2410c; --c-flush-b:#fed7aa;
+  --c-struct:#fdf4ff; --c-struct-t:#86198f; --c-struct-b:#e879f9;
+  --c-cache: #fff7ed; --c-cache-t:#c2410c; --c-cache-b:#fb923c;
+  --c-empty: transparent;
+
+  --shadow-sm: 0 2px 8px rgba(0,0,0,0.06);
+  --shadow-md: 0 4px 24px rgba(0,0,0,0.08);
+  --shadow-lg: 0 8px 48px rgba(0,0,0,0.1);
+  --glow:      0 0 20px rgba(59,95,232,.1);
+}
+
+/* ─── RESET ─── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'DM Sans', system-ui, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  font-size: 14px;
+  line-height: 1.5;
+  transition: background 0.35s ease, color 0.35s ease;
+  overflow-x: hidden;
+}
+
+/* Mesh background */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background:
+    radial-gradient(ellipse 80% 60% at 20% 10%, rgba(108,142,245,0.06) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 50% at 80% 80%, rgba(167,139,250,0.05) 0%, transparent 60%),
+    radial-gradient(ellipse 50% 40% at 50% 50%, rgba(56,189,248,0.03) 0%, transparent 60%);
+  pointer-events: none;
+}
+
+[data-theme="light"] body::before {
+  background:
+    radial-gradient(ellipse 80% 60% at 20% 10%, rgba(59,95,232,0.04) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 50% at 80% 80%, rgba(124,58,237,0.04) 0%, transparent 60%);
+}
+
+/* ─── HEADER ─── */
+.app-header {
+  position: sticky;
+  top: 0;
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  padding: 0 32px;
+  height: 60px;
+  background: var(--surface);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border);
+  box-shadow: var(--shadow-sm);
+}
+
+.header-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+}
+
+.brand-icon {
+  width: 40px;
+  height: 40px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.brand-name {
+  font-family: 'Syne', sans-serif;
+  font-weight: 800;
+  font-size: 1.1rem;
+  color: var(--text);
+  letter-spacing: -0.02em;
+}
+
+.brand-sub {
+  font-family: 'Space Mono', monospace;
+  font-size: 0.6rem;
+  color: var(--muted);
+  letter-spacing: 0.08em;
+}
+
+.header-nav {
+  display: flex;
+  gap: 4px;
+  flex: 1;
+  justify-content: center;
+}
+
+.nav-pill {
+  background: none;
+  border: 1px solid transparent;
+  color: var(--text2);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.82rem;
+  font-weight: 500;
+  padding: 6px 18px;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.nav-pill:hover {
+  color: var(--text);
+  border-color: var(--border);
+  background: var(--surface2);
+}
+
+.nav-pill.active {
+  color: var(--accent);
+  border-color: var(--border-glow);
+  background: var(--accent-dim);
+  font-weight: 600;
+}
+
+.header-controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+}
+
+/* Theme toggle */
+.theme-toggle {
+  width: 44px;
+  height: 24px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  cursor: pointer;
+  position: relative;
+  transition: all 0.3s;
+}
+
+.theme-toggle:hover { border-color: var(--border-glow); }
+
+.theme-knob {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--accent);
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  box-shadow: 0 0 8px rgba(108,142,245,0.5);
+}
+
+[data-theme="light"] .theme-knob {
+  transform: translateX(20px);
+  background: var(--yellow);
+  box-shadow: 0 0 8px rgba(180,83,9,0.4);
+}
+
+/* ─── LAYOUT ─── */
+.sim-layout {
+  display: grid;
+  grid-template-columns: 340px 1fr;
+  gap: 20px;
+  padding: 20px 24px;
+  max-width: 1800px;
+  margin: 0 auto;
+  min-height: calc(100vh - 60px - 44px);
+}
+
+.sim-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.sim-main {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* ─── PANEL ─── */
+.panel {
+  background: var(--surface);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 18px;
+  box-shadow: var(--shadow-sm);
+  transition: box-shadow 0.2s;
+}
+
+.panel:hover { box-shadow: var(--shadow-md); }
+
+.panel-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: 'Syne', sans-serif;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--text2);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 14px;
+}
+
+.panel-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.dot-blue   { background: var(--accent);  box-shadow: 0 0 6px var(--accent); }
+.dot-purple { background: var(--accent2); box-shadow: 0 0 6px var(--accent2); }
+.dot-green  { background: var(--green);   box-shadow: 0 0 6px var(--green); }
+.dot-orange { background: var(--orange);  box-shadow: 0 0 6px var(--orange); }
+
+.panel-badge {
+  margin-left: auto;
+  font-family: 'Space Mono', monospace;
+  font-size: 0.6rem;
+  padding: 3px 8px;
+  border-radius: 10px;
+  background: var(--accent-dim);
+  color: var(--accent);
+  border: 1px solid var(--border-glow);
+  letter-spacing: 0.05em;
+}
+
+/* ─── CODE INPUT ─── */
+.code-input {
+  width: 100%;
+  min-height: 160px;
+  resize: vertical;
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--text);
+  font-family: 'Space Mono', monospace;
+  font-size: 0.8rem;
+  line-height: 1.8;
+  padding: 12px 14px;
+  outline: none;
+  transition: all 0.25s;
+  caret-color: var(--accent);
+}
+
+.code-input:focus {
+  border-color: var(--border-glow);
+  box-shadow: 0 0 0 3px var(--accent-dim), var(--glow);
+  background: var(--bg3);
+}
+
+.hint-text {
+  font-family: 'Space Mono', monospace;
+  font-size: 0.62rem;
+  color: var(--muted);
+  margin-top: 6px;
+  line-height: 1.6;
+}
+
+.error-banner {
+  margin-top: 8px;
+  padding: 8px 12px;
+  background: var(--red-dim);
+  border: 1px solid var(--red);
+  border-radius: 6px;
+  color: var(--red);
+  font-family: 'Space Mono', monospace;
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+/* ─── PRESETS ─── */
+.preset-section {
+  margin-top: 14px;
+}
+
+.preset-label {
+  font-family: 'Syne', sans-serif;
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  color: var(--muted);
+  display: block;
+  margin-bottom: 8px;
+}
+
+.preset-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+}
+
+.preset-btn {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  color: var(--text2);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.72rem;
+  font-weight: 500;
+  padding: 7px 10px;
+  border-radius: 7px;
+  cursor: pointer;
+  transition: all 0.18s;
+  text-align: center;
+}
+
+.preset-btn:hover {
+  border-color: var(--border-glow);
+  color: var(--accent);
+  background: var(--accent-dim);
+  transform: translateY(-1px);
+}
+
+.preset-btn--full {
+  grid-column: 1 / -1;
+}
+
+/* ─── TOGGLE SWITCHES ─── */
+.toggle-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.toggle-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border2);
+}
+
+.toggle-item:last-child { border-bottom: none; }
+
+.toggle-name {
+  font-size: 0.83rem;
+  font-weight: 500;
+  color: var(--text);
+}
+
+.toggle-desc {
+  font-size: 0.65rem;
+  color: var(--muted);
+  font-family: 'Space Mono', monospace;
+  margin-top: 2px;
+}
+
+.switch {
+  position: relative;
+  display: inline-block;
+  flex-shrink: 0;
+}
+
+.switch input { position: absolute; opacity: 0; width: 0; height: 0; }
+
+.sw-track {
+  display: block;
+  width: 42px;
+  height: 22px;
+  background: var(--surface3);
+  border: 1px solid var(--border);
+  border-radius: 22px;
+  cursor: pointer;
+  transition: all 0.3s;
+  position: relative;
+}
+
+.sw-thumb {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--muted);
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+input:checked + .sw-track {
+  background: var(--accent-dim);
+  border-color: var(--accent);
+}
+
+input:checked + .sw-track .sw-thumb {
+  transform: translateX(20px);
+  background: var(--accent);
+  box-shadow: 0 0 8px var(--accent);
+}
+
+/* ─── RUN BUTTON ─── */
+.run-btn {
+  width: 100%;
+  margin-top: 14px;
+  padding: 12px 20px;
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  border: none;
+  border-radius: 10px;
+  color: #fff;
+  font-family: 'Syne', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  transition: all 0.25s;
+  box-shadow: 0 4px 20px rgba(108,142,245,0.35);
+}
+
+.run-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 32px rgba(108,142,245,0.5);
+}
+
+.run-btn:active { transform: translateY(0); }
+
+.run-icon {
+  font-size: 1rem;
+}
+
+/* ─── CACHE CONFIG ─── */
+.cache-cfg {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.cfg-field {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.cfg-field label {
+  font-size: 0.65rem;
+  font-weight: 600;
+  color: var(--muted);
+  font-family: 'Syne', sans-serif;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.cfg-select, .cfg-input {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--text);
+  font-family: 'Space Mono', monospace;
+  font-size: 0.75rem;
+  padding: 7px 9px;
+  outline: none;
+  transition: border-color 0.2s;
+  -webkit-appearance: none;
+}
+
+.cfg-select:focus, .cfg-input:focus {
+  border-color: var(--border-glow);
+  box-shadow: 0 0 0 2px var(--accent-dim);
+}
+
+/* ─── STATS STRIP ─── */
+.stats-strip {
+  display: grid;
+  grid-template-columns: repeat(10, 1fr);
+  gap: 8px;
+}
+
+.stat-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 12px 10px;
+  text-align: center;
+  transition: all 0.2s;
+}
+
+.stat-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-sm);
+}
+
+.stat-val {
+  font-family: 'Syne', sans-serif;
+  font-size: 1.4rem;
+  font-weight: 800;
+  line-height: 1;
+  margin-bottom: 4px;
+}
+
+.stat-lbl {
+  font-family: 'Space Mono', monospace;
+  font-size: 0.55rem;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-weight: 700;
+}
+
+/* ─── PLAYBAR ─── */
+.playbar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  flex-wrap: wrap;
+  box-shadow: var(--shadow-sm);
+}
+
+.pb-btn {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  color: var(--text2);
+  font-size: 0.8rem;
+  padding: 6px 12px;
+  border-radius: 7px;
+  cursor: pointer;
+  transition: all 0.18s;
+  font-family: 'Space Mono', monospace;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.pb-btn:hover:not(:disabled) {
+  border-color: var(--border-glow);
+  color: var(--accent);
+  background: var(--accent-dim);
+}
+
+.pb-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+
+.pb-play {
+  background: var(--accent-dim);
+  border-color: var(--border-glow);
+  color: var(--accent);
+}
+
+.pb-play:hover {
+  background: var(--accent) !important;
+  color: white !important;
+}
+
+.cycle-badge {
+  font-family: 'Space Mono', monospace;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--accent);
+  background: var(--accent-dim);
+  border: 1px solid var(--border-glow);
+  border-radius: 7px;
+  padding: 6px 14px;
+  white-space: nowrap;
+  min-width: 90px;
+  text-align: center;
+}
+
+.progress-track {
+  flex: 1;
+  height: 6px;
+  background: var(--border);
+  border-radius: 3px;
+  overflow: hidden;
+  min-width: 60px;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent), var(--accent2));
+  border-radius: 3px;
+  transition: width 0.3s ease;
+}
+
+.speed-sel {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  color: var(--text2);
+  font-family: 'Space Mono', monospace;
+  font-size: 0.7rem;
+  padding: 5px 8px;
+  border-radius: 6px;
+  outline: none;
+  cursor: pointer;
+}
+
+.export-btn {
+  background: var(--green-dim);
+  border: 1px solid var(--green);
+  color: var(--green);
+  font-family: 'Space Mono', monospace;
+  font-size: 0.68rem;
+  padding: 6px 12px;
+  border-radius: 7px;
+  cursor: pointer;
+  font-weight: 700;
+  transition: all 0.18s;
+  white-space: nowrap;
+}
+
+.export-btn:hover {
+  background: var(--green);
+  color: #fff;
+  transform: translateY(-1px);
+}
+
+/* ─── LEGEND BAR ─── */
+.legend-bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding: 10px 16px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+}
+
+.legend-title {
+  font-family: 'Syne', sans-serif;
+  font-size: 0.6rem;
+  font-weight: 700;
+  color: var(--muted);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  flex-shrink: 0;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-family: 'Space Mono', monospace;
+  font-size: 0.65rem;
+  color: var(--text2);
+  font-weight: 700;
+}
+
+.lbox {
+  width: 20px;
+  height: 12px;
+  border-radius: 3px;
+  border: 1px solid transparent;
+}
+
+.lif   { background: var(--c-if);    border-color: var(--c-if-b); }
+.lid   { background: var(--c-id);    border-color: var(--c-id-b); }
+.lex   { background: var(--c-ex);    border-color: var(--c-ex-b); }
+.lmem  { background: var(--c-mem);   border-color: var(--c-mem-b); }
+.lwb   { background: var(--c-wb);    border-color: var(--c-wb-b); }
+.lstall{ background: var(--c-stall); border-color: var(--c-stall-b); border-style: dashed; }
+.lfwd  { background: var(--c-fwd);   border-color: var(--c-fwd-b); }
+.lflush{ background: var(--c-flush); border-color: var(--c-flush-b); border-style: dashed; }
+.lstruct{background: var(--c-struct);border-color: var(--c-struct-b); border-style: dashed; }
+.lcache{ background: var(--c-cache); border-color: var(--c-cache-b); border-style: dotted; }
+
+/* ─── PIPELINE PANEL ─── */
+.pipeline-panel { padding: 0; overflow: hidden; }
+
+.pipeline-panel .panel-header {
+  padding: 16px 18px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 0;
+}
+
+.pipeline-scroll {
+  overflow-x: auto;
+  padding: 16px 18px;
+}
+
+.pipeline-scroll::-webkit-scrollbar {
+  height: 6px;
+}
+
+.pipeline-scroll::-webkit-scrollbar-track {
+  background: var(--surface2);
+  border-radius: 3px;
+}
+
+.pipeline-scroll::-webkit-scrollbar-thumb {
+  background: var(--border-glow);
+  border-radius: 3px;
+}
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 60px 20px;
+  color: var(--muted);
+  font-family: 'Space Mono', monospace;
+  font-size: 0.85rem;
+  text-align: center;
+}
+
+.empty-icon {
+  font-size: 2.5rem;
+  animation: pulse 2.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 0.3; transform: scale(1); }
+  50% { opacity: 0.8; transform: scale(1.1); }
+}
+
+/* ─── PIPELINE TABLE ─── */
+table.ptable {
+  border-collapse: separate;
+  border-spacing: 3px;
+  width: max-content;
+  min-width: 100%;
+}
+
+table.ptable th {
+  font-family: 'Space Mono', monospace;
+  font-size: 0.65rem;
+  color: var(--muted);
+  font-weight: 700;
+  padding: 5px 8px;
+  text-align: center;
+  white-space: nowrap;
+  background: var(--surface2);
+  border-radius: 5px;
+  border: 1px solid var(--border);
+  transition: all 0.25s;
+}
+
+table.ptable th:first-child {
+  text-align: left;
+  background: transparent;
+  border: none;
+  min-width: 220px;
+}
+
+table.ptable th.col-active {
+  background: var(--accent) !important;
+  color: #fff !important;
+  border-color: var(--accent) !important;
+  box-shadow: 0 0 12px rgba(108,142,245,0.5);
+}
+
+table.ptable th.col-dim {
+  opacity: 0.3;
+}
+
+table.ptable td {
+  height: 36px;
+  min-width: 56px;
+  text-align: center;
+  border-radius: 5px;
+  font-family: 'Space Mono', monospace;
+  font-size: 0.65rem;
+  font-weight: 700;
+  vertical-align: middle;
+  transition: opacity 0.2s, filter 0.2s, transform 0.2s;
+  border: 1px solid transparent;
+  user-select: none;
+  letter-spacing: 0.03em;
+}
+
+table.ptable td:first-child {
+  background: transparent !important;
+  border: none;
+  text-align: left;
+  padding-right: 12px;
+  min-width: 220px;
+  font-size: 0.72rem;
+}
+
+table.ptable.step-mode td.col-dim,
+table.ptable.step-mode th.col-dim {
+  opacity: 0.18;
+  filter: saturate(0.1);
+}
+
+table.ptable.step-mode td.col-active-cell {
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
+  transform: scale(1.08);
+  z-index: 5;
+  position: relative;
+  box-shadow: 0 0 12px var(--accent);
+}
+
+/* Stage cell styles */
+.s-IF    { background: var(--c-if);    border-color: var(--c-if-b);    color: var(--c-if-t);    }
+.s-ID    { background: var(--c-id);    border-color: var(--c-id-b);    color: var(--c-id-t);    }
+.s-EX    { background: var(--c-ex);    border-color: var(--c-ex-b);    color: var(--c-ex-t);    }
+.s-MEM   { background: var(--c-mem);   border-color: var(--c-mem-b);   color: var(--c-mem-t);   }
+.s-WB    { background: var(--c-wb);    border-color: var(--c-wb-b);    color: var(--c-wb-t);    }
+.s-STALL { background: var(--c-stall); border-color: var(--c-stall-b); color: var(--c-stall-t); border-style: dashed; }
+.s-FWD   { background: var(--c-fwd);   border-color: var(--c-fwd-b);   color: var(--c-fwd-t);   }
+.s-FLUSH { background: var(--c-flush); border-color: var(--c-flush-b); color: var(--c-flush-t); border-style: dashed; }
+.s-STRUCT{ background: var(--c-struct);border-color: var(--c-struct-b);color: var(--c-struct-t);border-style: dashed; }
+.s-CACHE { background: var(--c-cache); border-color: var(--c-cache-b); color: var(--c-cache-t); border-style: dotted; }
+.s-EMPTY { background: transparent;   border-color: transparent;      color: transparent;      }
+
+.row-label {
+  color: var(--text);
+  white-space: nowrap;
+}
+
+.row-label .idx {
+  color: var(--muted);
+  font-size: 0.6rem;
+  margin-right: 4px;
+}
+
+.row-label .mnem {
+  color: var(--accent);
+  font-weight: 700;
+}
+
+.row-label .ops {
+  color: var(--text2);
+  font-size: 0.65rem;
+}
+
+.flush-label {
+  color: var(--orange);
+  font-size: 0.6rem;
+  white-space: nowrap;
+}
+
+/* ─── DETAIL TABS ─── */
+.detail-section { display: flex; flex-direction: column; gap: 0; }
+
+.tabs {
+  display: flex;
+  gap: 2px;
+  border-bottom: 2px solid var(--border);
+  padding-bottom: -1px;
+}
+
+.tab-btn {
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -2px;
+  padding: 10px 20px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.82rem;
+  font-weight: 500;
+  color: var(--muted);
+  cursor: pointer;
+  transition: all 0.2s;
+  border-radius: 8px 8px 0 0;
+}
+
+.tab-btn:hover { color: var(--text); background: var(--surface2); }
+
+.tab-btn.active {
+  color: var(--accent);
+  border-bottom-color: var(--accent);
+  background: var(--accent-dim);
+  font-weight: 600;
+}
+
+.tab-panel { display: none; padding-top: 16px; animation: fadeUp 0.25s ease; }
+.tab-panel.active { display: block; }
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ─── HAZARD CARDS ─── */
+.hazard-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 14px;
+}
+
+.hcard {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 16px;
+  border-top-width: 3px;
+}
+
+.hcard-data  { border-top-color: var(--red); }
+.hcard-ctrl  { border-top-color: var(--yellow); }
+.hcard-fwd   { border-top-color: var(--teal); }
+.hcard-struct{ border-top-color: var(--purple); }
+.hcard-cache { border-top-color: var(--orange); }
+
+.hcard-title {
+  font-family: 'Syne', sans-serif;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.htag {
+  margin-left: auto;
+  font-family: 'Space Mono', monospace;
+  font-size: 0.58rem;
+  padding: 2px 7px;
+  border-radius: 8px;
+  border: 1px solid;
+  font-weight: 700;
+}
+
+.hlist {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.hlist li {
+  display: flex;
+  gap: 8px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border2);
+  font-size: 0.78rem;
+  align-items: flex-start;
+  line-height: 1.5;
+}
+
+.hlist li:last-child { border-bottom: none; }
+
+.hz-icon { font-size: 0.9rem; flex-shrink: 0; margin-top: 1px; }
+.hz-main { font-weight: 600; color: var(--text); }
+
+.hz-detail {
+  display: block;
+  font-family: 'Space Mono', monospace;
+  font-size: 0.62rem;
+  color: var(--muted);
+  margin-top: 3px;
+}
+
+.fwd-path {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 0;
+  font-family: 'Space Mono', monospace;
+  font-size: 0.72rem;
+  color: var(--teal);
+  font-weight: 700;
+  border-bottom: 1px solid var(--border2);
+}
+
+.fwd-path:last-child { border-bottom: none; }
+
+.farrow { color: var(--yellow); margin: 0 4px; }
+
+/* ─── REGISTERS ─── */
+.reg-grid {
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  gap: 6px;
+  margin-bottom: 12px;
+}
+
+.reg-cell {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  padding: 7px 6px;
+  text-align: center;
+  transition: all 0.35s;
+  cursor: default;
+}
+
+.reg-cell:hover {
+  border-color: var(--border-glow);
+  transform: scale(1.05);
+}
+
+.reg-cell.dirty {
+  background: var(--yellow-dim);
+  border-color: var(--yellow);
+}
+
+.reg-cell.just-written {
+  background: var(--green-dim);
+  border-color: var(--green);
+  animation: regFlash 0.8s ease;
+}
+
+@keyframes regFlash {
+  0% { background: var(--green); transform: scale(1.15); }
+  100% { background: var(--green-dim); transform: scale(1); }
+}
+
+.reg-name {
+  font-family: 'Space Mono', monospace;
+  font-size: 0.58rem;
+  color: var(--muted);
+  font-weight: 700;
+}
+
+.reg-val {
+  font-family: 'Space Mono', monospace;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--text);
+  margin-top: 3px;
+}
+
+.cycle-log {
+  max-height: 140px;
+  overflow-y: auto;
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 10px 12px;
+  font-family: 'Space Mono', monospace;
+  font-size: 0.68rem;
+  line-height: 1.9;
+}
+
+.log-default { color: var(--text2); }
+.log-stall   { color: var(--red); }
+.log-fwd     { color: var(--teal); }
+.log-wb      { color: var(--green); }
+.log-cache   { color: var(--orange); }
+.log-flush   { color: var(--yellow); }
+
+/* ─── CACHE PANEL ─── */
+.cache-stats-row {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.cstat {
+  flex: 1;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 10px;
+  text-align: center;
+  font-family: 'Space Mono', monospace;
+  font-size: 0.6rem;
+  color: var(--muted);
+  font-weight: 700;
+}
+
+.cval {
+  font-size: 1.3rem;
+  font-weight: 800;
+  font-family: 'Syne', sans-serif;
+  margin-bottom: 3px;
+}
+
+.cache-lines-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+  gap: 7px;
+  max-height: 260px;
+  overflow-y: auto;
+}
+
+.cache-line {
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  padding: 8px;
+  background: var(--surface2);
+  font-family: 'Space Mono', monospace;
+  font-size: 0.63rem;
+  transition: transform 0.18s;
+}
+
+.cache-line:hover { transform: translateY(-1px); }
+.cache-line.hit   { background: var(--green-dim); border-color: var(--green); }
+.cache-line.miss  { background: var(--red-dim);   border-color: var(--red);   border-style: dashed; }
+
+.cl-set  { color: var(--muted); font-size: 0.55rem; font-weight: 700; text-transform: uppercase; }
+.cl-tag  { font-weight: 800; color: var(--text); font-size: 0.7rem; margin: 4px 0; }
+.cl-state{ font-size: 0.62rem; font-weight: 600; }
+
+/* ─── THEORY PAGE ─── */
+.theory-layout {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 40px 32px;
+}
+
+.theory-hero {
+  text-align: center;
+  margin-bottom: 48px;
+}
+
+.theory-hero h1 {
+  font-family: 'Syne', sans-serif;
+  font-size: 2.8rem;
+  font-weight: 800;
+  background: linear-gradient(135deg, var(--accent), var(--accent2), var(--accent3));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 12px;
+}
+
+.theory-hero p {
+  color: var(--text2);
+  font-size: 1rem;
+}
+
+.theory-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+  gap: 20px;
+}
+
+.theory-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 28px;
+  transition: all 0.25s;
+  position: relative;
+  overflow: hidden;
+}
+
+.theory-card::before {
+  content: '';
+  position: absolute;
+  top: 0; right: 0;
+  width: 80px; height: 80px;
+  background: radial-gradient(circle, var(--accent-dim), transparent);
+  pointer-events: none;
+}
+
+.theory-card:hover {
+  box-shadow: var(--shadow-md);
+  transform: translateY(-3px);
+  border-color: var(--border-glow);
+}
+
+.theory-num {
+  font-family: 'Syne', sans-serif;
+  font-size: 3rem;
+  font-weight: 800;
+  color: var(--border);
+  line-height: 1;
+  margin-bottom: 8px;
+}
+
+.theory-card h3 {
+  font-family: 'Syne', sans-serif;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 10px;
+}
+
+.theory-card p {
+  color: var(--text2);
+  font-size: 0.85rem;
+  line-height: 1.65;
+  margin-bottom: 14px;
+}
+
+.theory-formula {
+  font-family: 'Space Mono', monospace;
+  font-size: 0.85rem;
+  color: var(--accent);
+  background: var(--accent-dim);
+  border: 1px solid var(--border-glow);
+  border-radius: 8px;
+  padding: 10px 14px;
+  margin-bottom: 14px;
+  font-weight: 700;
+}
+
+.theory-detail {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.theory-detail div {
+  font-size: 0.78rem;
+  color: var(--text2);
+  font-family: 'Space Mono', monospace;
+  padding: 4px 0;
+  border-bottom: 1px solid var(--border2);
+}
+
+.theory-detail div:last-child { border-bottom: none; }
+
+.stage-pills {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-bottom: 14px;
+  flex-wrap: wrap;
+}
+
+.spill {
+  padding: 5px 10px;
+  border-radius: 20px;
+  font-family: 'Space Mono', monospace;
+  font-size: 0.7rem;
+  font-weight: 700;
+}
+
+.sarrow { color: var(--muted); font-size: 0.9rem; }
+
+.sif  { background: var(--c-if);  color: var(--c-if-t);  border: 1px solid var(--c-if-b); }
+.sid  { background: var(--c-id);  color: var(--c-id-t);  border: 1px solid var(--c-id-b); }
+.sex  { background: var(--c-ex);  color: var(--c-ex-t);  border: 1px solid var(--c-ex-b); }
+.smem { background: var(--c-mem); color: var(--c-mem-t); border: 1px solid var(--c-mem-b); }
+.swb  { background: var(--c-wb);  color: var(--c-wb-t);  border: 1px solid var(--c-wb-b); }
+
+/* ─── ABOUT PAGE ─── */
+.about-layout {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 40px 32px;
+}
+
+.about-hero {
+  text-align: center;
+  margin-bottom: 48px;
+}
+
+.about-hero h1 {
+  font-family: 'Syne', sans-serif;
+  font-size: 3rem;
+  font-weight: 800;
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 12px;
+}
+
+.about-tagline {
+  color: var(--text2);
+  font-size: 1rem;
+}
+
+.about-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 20px;
+}
+
+.about-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 28px;
+}
+
+.about-card h3 {
+  font-family: 'Syne', sans-serif;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--accent);
+  margin-bottom: 16px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--border);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.about-field {
+  display: flex;
+  justify-content: space-between;
+  padding: 7px 0;
+  border-bottom: 1px solid var(--border2);
+  font-size: 0.8rem;
+}
+
+.about-field:last-child { border-bottom: none; }
+.about-field span:first-child { color: var(--text2); }
+.about-field span:last-child  { color: var(--text);  font-weight: 500; }
+
+.about-feat {
+  padding: 7px 0;
+  border-bottom: 1px solid var(--border2);
+  font-size: 0.8rem;
+  color: var(--text2);
+}
+
+.about-feat:last-child { border-bottom: none; }
+
+/* ─── FOOTER ─── */
+.app-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 32px;
+  border-top: 1px solid var(--border);
+  font-family: 'Space Mono', monospace;
+  font-size: 0.62rem;
+  color: var(--muted);
+  background: var(--surface);
+  backdrop-filter: blur(12px);
+  letter-spacing: 0.06em;
+}
+
+/* ─── SCROLLBARS ─── */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: var(--surface2); }
+::-webkit-scrollbar-thumb { background: var(--border-glow); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--accent); }
+
+/* ─── RESPONSIVE ─── */
+@media (max-width: 1200px) {
+  .sim-layout { grid-template-columns: 300px 1fr; }
+  .stats-strip { grid-template-columns: repeat(5, 1fr); }
+}
+
+@media (max-width: 900px) {
+  .sim-layout { grid-template-columns: 1fr; }
+  .app-header { padding: 0 16px; }
+  .stats-strip { grid-template-columns: repeat(5, 1fr); }
+}
+
+@media (max-width: 600px) {
+  .stats-strip { grid-template-columns: repeat(2, 1fr); }
+  .header-nav { display: none; }
+}
+
+</style>
+</head>
+<body>
+
+<!-- ══════════════ HEADER ══════════════ -->
+<header class="app-header">
+  <div class="header-brand">
+    <div class="brand-icon">
+      <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+        <rect x="2" y="8" width="6" height="12" rx="2" fill="var(--accent)"/>
+        <rect x="11" y="4" width="6" height="20" rx="2" fill="var(--accent2)"/>
+        <rect x="20" y="10" width="6" height="8" rx="2" fill="var(--accent3)"/>
+        <line x1="8" y1="14" x2="11" y2="14" stroke="var(--border-glow)" stroke-width="1.5"/>
+        <line x1="17" y1="14" x2="20" y2="14" stroke="var(--border-glow)" stroke-width="1.5"/>
+      </svg>
+    </div>
+    <div>
+      <div class="brand-name">PipelineOS</div>
+      <div class="brand-sub">5-Stage MIPS · IF→ID→EX→MEM→WB</div>
+    </div>
+  </div>
+  <nav class="header-nav">
+    <button class="nav-pill active" data-page="simulator" onclick="switchPage('simulator')">Simulator</button>
+    <button class="nav-pill" data-page="theory" onclick="switchPage('theory')">Theory</button>
+    <button class="nav-pill" data-page="about" onclick="switchPage('about')">About</button>
+  </nav>
+  <div class="header-controls">
+    <div class="theme-toggle" id="themeToggle" onclick="toggleTheme()" title="Toggle theme">
+      <div class="theme-knob"></div>
+    </div>
+  </div>
+</header>
+
+<!-- ══════════════ PAGE: SIMULATOR ══════════════ -->
+<main id="page-simulator" class="page active">
+  <div class="sim-layout">
+
+    <!-- LEFT COLUMN: Input & Config -->
+    <aside class="sim-sidebar">
+      <div class="panel">
+        <div class="panel-header">
+          <span class="panel-dot dot-blue"></span>
+          <span>Instruction Input</span>
+          <span class="panel-badge">MIPS-32</span>
+        </div>
+        <textarea id="inst-input" class="code-input" spellcheck="false" placeholder="# Enter MIPS instructions&#10;ADD R1, R2, R3&#10;LW  R4, 0(R1)&#10;BEQ R4, R5, label"></textarea>
+        <div class="hint-text">Supports: ADD SUB AND OR XOR NOR SLT MUL DIV LW SW BEQ BNE</div>
+        <div id="parse-error" class="error-banner" style="display:none;"></div>
+        <div class="preset-section">
+          <span class="preset-label">PRESETS</span>
+          <div class="preset-grid">
+            <button class="preset-btn" data-preset="raw">RAW Hazard</button>
+            <button class="preset-btn" data-preset="load-use">Load-Use</button>
+            <button class="preset-btn" data-preset="branch">Branch</button>
+            <button class="preset-btn" data-preset="forwarding">Forwarding</button>
+            <button class="preset-btn" data-preset="struct">Structural</button>
+            <button class="preset-btn" data-preset="cache">Cache Miss</button>
+            <button class="preset-btn preset-btn--full" data-preset="combined">Full Combined Demo</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-header">
+          <span class="panel-dot dot-purple"></span>
+          <span>Simulation Config</span>
+        </div>
+        <div class="toggle-list">
+          <div class="toggle-item">
+            <div class="toggle-info">
+              <div class="toggle-name">Data Forwarding</div>
+              <div class="toggle-desc">EX→EX, MEM→EX bypass paths</div>
+            </div>
+            <label class="switch"><input type="checkbox" id="opt-forwarding" checked><span class="sw-track"><span class="sw-thumb"></span></span></label>
+          </div>
+          <div class="toggle-item">
+            <div class="toggle-info">
+              <div class="toggle-name">Branch Prediction</div>
+              <div class="toggle-desc">Predict not-taken (reduces to 1-cycle penalty)</div>
+            </div>
+            <label class="switch"><input type="checkbox" id="opt-branch-pred"><span class="sw-track"><span class="sw-thumb"></span></span></label>
+          </div>
+          <div class="toggle-item">
+            <div class="toggle-info">
+              <div class="toggle-name">Structural Hazards</div>
+              <div class="toggle-desc">Shared MEM port & multiplier conflicts</div>
+            </div>
+            <label class="switch"><input type="checkbox" id="opt-structural"><span class="sw-track"><span class="sw-thumb"></span></span></label>
+          </div>
+          <div class="toggle-item">
+            <div class="toggle-info">
+              <div class="toggle-name">Cache Simulation</div>
+              <div class="toggle-desc">I$/D$ miss penalties</div>
+            </div>
+            <label class="switch"><input type="checkbox" id="opt-cache"><span class="sw-track"><span class="sw-thumb"></span></span></label>
+          </div>
+          <div class="toggle-item">
+            <div class="toggle-info">
+              <div class="toggle-name">Highlight Overlays</div>
+              <div class="toggle-desc">Visual glow on hazard cells</div>
+            </div>
+            <label class="switch"><input type="checkbox" id="opt-highlight" checked><span class="sw-track"><span class="sw-thumb"></span></span></label>
+          </div>
+        </div>
+        <button class="run-btn" id="btn-run">
+          <span class="run-icon">▶</span>
+          <span>Compile & Run</span>
+        </button>
+      </div>
+
+      <!-- Cache config panel -->
+      <div class="panel">
+        <div class="panel-header">
+          <span class="panel-dot dot-orange"></span>
+          <span>Cache Config</span>
+          <span class="panel-badge">L1</span>
+        </div>
+        <div class="cache-cfg">
+          <div class="cfg-field">
+            <label>Cache Blocks</label>
+            <select id="cache-size" class="cfg-select">
+              <option value="8">8 blocks</option>
+              <option value="16" selected>16 blocks</option>
+              <option value="32">32 blocks</option>
+            </select>
+          </div>
+          <div class="cfg-field">
+            <label>Associativity</label>
+            <select id="cache-assoc" class="cfg-select">
+              <option value="1" selected>Direct-mapped</option>
+              <option value="2">2-way SA</option>
+              <option value="4">4-way SA</option>
+            </select>
+          </div>
+          <div class="cfg-field">
+            <label>Miss Penalty (cycles)</label>
+            <input type="number" id="cache-penalty" value="4" min="1" max="20" class="cfg-input">
+          </div>
+          <div class="cfg-field">
+            <label>Miss Mode</label>
+            <select id="cache-miss-mode" class="cfg-select">
+              <option value="auto">Address-based</option>
+              <option value="25">~25% stochastic</option>
+              <option value="50">~50% stochastic</option>
+              <option value="75">~75% stochastic</option>
+            </select>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- RIGHT COLUMN: Results -->
+    <section class="sim-main">
+
+      <!-- Stats Row -->
+      <div class="stats-strip" id="stats-strip">
+        <div class="stat-card">
+          <div class="stat-val" id="stat-cycles" style="color:var(--accent)">—</div>
+          <div class="stat-lbl">Total Cycles</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-val" id="stat-insts" style="color:var(--green)">—</div>
+          <div class="stat-lbl">Instructions</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-val" id="stat-cpi" style="color:var(--accent2)">—</div>
+          <div class="stat-lbl">CPI</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-val" id="stat-eff" style="color:var(--green)">—</div>
+          <div class="stat-lbl">Efficiency</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-val" id="stat-stalls" style="color:var(--red)">—</div>
+          <div class="stat-lbl">Stall Cycles</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-val" id="stat-data-hz" style="color:var(--yellow)">—</div>
+          <div class="stat-lbl">Data Hazards</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-val" id="stat-ctrl-hz" style="color:var(--yellow)">—</div>
+          <div class="stat-lbl">Control Hz.</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-val" id="stat-struct-hz" style="color:var(--purple)">—</div>
+          <div class="stat-lbl">Structural</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-val" id="stat-cache-miss" style="color:var(--orange)">—</div>
+          <div class="stat-lbl">Cache Misses</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-val" id="stat-fwd" style="color:var(--teal)">—</div>
+          <div class="stat-lbl">Bypasses</div>
+        </div>
+      </div>
+
+      <!-- Playback Controls -->
+      <div class="playbar" id="playbar" style="display:none;">
+        <button class="pb-btn" id="btn-reset" title="Reset to start">↺</button>
+        <button class="pb-btn" id="btn-prev" title="Previous cycle">◀</button>
+        <div class="cycle-badge" id="cycle-display">C1</div>
+        <button class="pb-btn" id="btn-next" title="Next cycle">▶</button>
+        <button class="pb-btn pb-play" id="btn-play" title="Play/Pause">⏵</button>
+        <div class="progress-track">
+          <div class="progress-bar-fill" id="progress-fill" style="width:0%"></div>
+        </div>
+        <select class="speed-sel" id="speed-select">
+          <option value="1000">0.5×</option>
+          <option value="500" selected>1×</option>
+          <option value="250">2×</option>
+          <option value="100">4×</option>
+        </select>
+        <button class="export-btn" id="btn-csv">↓ CSV</button>
+      </div>
+
+      <!-- Legend -->
+      <div class="legend-bar" id="legend-bar" style="display:none;">
+        <span class="legend-title">LEGEND</span>
+        <div class="legend-item"><span class="lbox lif"></span>IF</div>
+        <div class="legend-item"><span class="lbox lid"></span>ID</div>
+        <div class="legend-item"><span class="lbox lex"></span>EX</div>
+        <div class="legend-item"><span class="lbox lmem"></span>MEM</div>
+        <div class="legend-item"><span class="lbox lwb"></span>WB</div>
+        <div class="legend-item"><span class="lbox lstall"></span>STALL</div>
+        <div class="legend-item"><span class="lbox lfwd"></span>FWD</div>
+        <div class="legend-item"><span class="lbox lflush"></span>FLUSH</div>
+        <div class="legend-item"><span class="lbox lstruct"></span>STRUCT</div>
+        <div class="legend-item"><span class="lbox lcache"></span>$MISS</div>
+      </div>
+
+      <!-- Pipeline Diagram -->
+      <div class="panel pipeline-panel" id="pipeline-export-target">
+        <div class="panel-header">
+          <span class="panel-dot dot-blue"></span>
+          <span>Execution Timeline</span>
+          <button class="export-btn" id="btn-png" style="margin-left:auto;">↓ PNG</button>
+        </div>
+        <div class="pipeline-scroll">
+          <div id="pipeline-canvas" class="empty-state">
+            <div class="empty-icon">⚡</div>
+            <div>Enter instructions and click <strong>Compile & Run</strong></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Detail Tabs -->
+      <div class="detail-section" id="detail-section" style="display:none;">
+        <div class="tabs">
+          <button class="tab-btn active" data-tab="tab-hazards">⚡ Hazards</button>
+          <button class="tab-btn" data-tab="tab-registers">🗄 Registers</button>
+          <button class="tab-btn" data-tab="tab-cache">💾 Cache</button>
+        </div>
+
+        <!-- Hazards Tab -->
+        <div class="tab-panel active" id="tab-hazards">
+          <div class="hazard-grid" id="hazard-grid">
+            <div class="hcard hcard-data">
+              <div class="hcard-title" style="color:var(--red)">⚡ Data Hazards <span class="htag" style="background:var(--red-dim);color:var(--red);border-color:var(--red-dim);">RAW</span></div>
+              <ul class="hlist" id="data-hazard-list"></ul>
+            </div>
+            <div class="hcard hcard-ctrl">
+              <div class="hcard-title" style="color:var(--yellow)">⟳ Control Hazards <span class="htag" style="background:var(--yellow-dim);color:var(--yellow);border-color:var(--yellow-dim);">BRANCH</span></div>
+              <ul class="hlist" id="ctrl-hazard-list"></ul>
+            </div>
+            <div class="hcard hcard-fwd" id="fwd-section" style="display:none;">
+              <div class="hcard-title" style="color:var(--teal)">↪ Forwarding <span class="htag" style="background:var(--teal-dim);color:var(--teal);border-color:var(--teal-dim);">BYPASS</span></div>
+              <div id="fwd-paths-list"></div>
+            </div>
+            <div class="hcard hcard-struct" id="struct-section" style="display:none;">
+              <div class="hcard-title" style="color:var(--purple)">🔒 Structural <span class="htag" style="background:var(--purple-dim);color:var(--purple);border-color:var(--purple-dim);">RESOURCE</span></div>
+              <ul class="hlist" id="struct-hazard-list"></ul>
+            </div>
+            <div class="hcard hcard-cache" id="cache-hz-section" style="display:none;">
+              <div class="hcard-title" style="color:var(--orange)">💾 Cache Misses <span class="htag" style="background:var(--orange-dim);color:var(--orange);border-color:var(--orange-dim);">MISS</span></div>
+              <ul class="hlist" id="cache-hazard-list"></ul>
+            </div>
+          </div>
+        </div>
+
+        <!-- Registers Tab -->
+        <div class="tab-panel" id="tab-registers">
+          <div class="panel">
+            <div class="panel-header">
+              <span class="panel-dot dot-green"></span>
+              <span>Register File — Cycle <span id="reg-cycle-lbl" style="color:var(--accent)">—</span></span>
+              <span style="margin-left:auto;font-size:0.65rem;color:var(--muted);">🟡 dirty · 🟢 written</span>
+            </div>
+            <div class="reg-grid" id="reg-grid"></div>
+            <div class="cycle-log" id="cycle-log"><span style="color:var(--muted)">Step through cycles to view events.</span></div>
+          </div>
+        </div>
+
+        <!-- Cache Tab -->
+        <div class="tab-panel" id="tab-cache">
+          <div class="panel">
+            <div class="panel-header">
+              <span class="panel-dot dot-orange"></span>
+              <span>Cache State</span>
+            </div>
+            <div class="cache-stats-row">
+              <div class="cstat"><div class="cval" id="cs-accesses" style="color:var(--accent)">0</div><div>Accesses</div></div>
+              <div class="cstat"><div class="cval" id="cs-hits" style="color:var(--green)">0</div><div>Hits</div></div>
+              <div class="cstat"><div class="cval" id="cs-misses" style="color:var(--red)">0</div><div>Misses</div></div>
+              <div class="cstat"><div class="cval" id="cs-rate" style="color:var(--teal)">—</div><div>Hit Rate</div></div>
+              <div class="cstat"><div class="cval" id="cs-stalls" style="color:var(--orange)">0</div><div>Stall Cycles</div></div>
+            </div>
+            <div class="cache-lines-grid" id="cache-lines"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+</main>
+
+<!-- ══════════════ PAGE: THEORY ══════════════ -->
+<main id="page-theory" class="page" style="display:none;">
+  <div class="theory-layout">
+    <div class="theory-hero">
+      <h1>Pipeline Architecture</h1>
+      <p>Comprehensive reference for 5-Stage MIPS pipeline hazards and optimizations</p>
+    </div>
+    <div class="theory-grid">
+      <div class="theory-card">
+        <div class="theory-num">01</div>
+        <h3>5-Stage Pipeline</h3>
+        <p>The MIPS pipeline divides instruction execution into 5 independent stages that overlap in time, achieving near-CPI=1 throughput in ideal conditions.</p>
+        <div class="stage-pills">
+          <span class="spill sif">IF</span>
+          <span class="sarrow">→</span>
+          <span class="spill sid">ID</span>
+          <span class="sarrow">→</span>
+          <span class="spill sex">EX</span>
+          <span class="sarrow">→</span>
+          <span class="spill smem">MEM</span>
+          <span class="sarrow">→</span>
+          <span class="spill swb">WB</span>
+        </div>
+        <div class="theory-detail">
+          <div><strong>IF</strong> — Instruction Fetch from instruction memory</div>
+          <div><strong>ID</strong> — Decode opcode, read register file</div>
+          <div><strong>EX</strong> — ALU computation, address calc</div>
+          <div><strong>MEM</strong> — Data memory read/write</div>
+          <div><strong>WB</strong> — Write result back to register file</div>
+        </div>
+      </div>
+
+      <div class="theory-card">
+        <div class="theory-num">02</div>
+        <h3>Data Hazards (RAW)</h3>
+        <p>Read-After-Write hazards occur when an instruction tries to read a register before a previous instruction has written its result.</p>
+        <div class="theory-formula">stalls = max(0, 3 − distance)</div>
+        <div class="theory-detail">
+          <div>• <strong>Distance 1</strong>: 2 stalls without forwarding</div>
+          <div>• <strong>Distance 2</strong>: 1 stall without forwarding</div>
+          <div>• <strong>Distance 3+</strong>: No hazard</div>
+          <div>• With forwarding: 0 stalls for most cases</div>
+          <div>• Load-Use: always 1 stall even with forwarding</div>
+        </div>
+      </div>
+
+      <div class="theory-card">
+        <div class="theory-num">03</div>
+        <h3>Control Hazards</h3>
+        <p>Branch instructions cause uncertainty in the instruction stream. The pipeline may fetch incorrect instructions before the branch outcome is known.</p>
+        <div class="theory-detail">
+          <div>• <strong>No prediction</strong>: 2-cycle penalty (stall until EX)</div>
+          <div>• <strong>Predict not-taken</strong>: 1-cycle penalty if branch taken</div>
+          <div>• <strong>Dynamic prediction</strong>: 0–1 cycle on misprediction</div>
+          <div>• Flush = squash wrongly-fetched instructions</div>
+        </div>
+      </div>
+
+      <div class="theory-card">
+        <div class="theory-num">04</div>
+        <h3>Data Forwarding</h3>
+        <p>Bypassing routes computed values directly from pipeline registers to where they're needed, without waiting for WB.</p>
+        <div class="theory-detail">
+          <div>• <strong>EX→EX</strong>: Result forwarded from EX/MEM latch</div>
+          <div>• <strong>MEM→EX</strong>: Result forwarded from MEM/WB latch</div>
+          <div>• Eliminates most data hazard stalls</div>
+          <div>• Cannot forward loads before MEM completes</div>
+        </div>
+      </div>
+
+      <div class="theory-card">
+        <div class="theory-num">05</div>
+        <h3>Structural Hazards</h3>
+        <p>Occur when two instructions need the same hardware resource at the same time.</p>
+        <div class="theory-detail">
+          <div>• <strong>MEM port conflict</strong>: LW/SW + IF share memory bus</div>
+          <div>• <strong>Multiplier conflict</strong>: MUL/DIV take multiple cycles</div>
+          <div>• Resolved by inserting pipeline stalls</div>
+          <div>• Solution: Harvard arch (separate I$/D$)</div>
+        </div>
+      </div>
+
+      <div class="theory-card">
+        <div class="theory-num">06</div>
+        <h3>Cache Hierarchy</h3>
+        <p>Cache misses introduce variable-latency stalls when data must be fetched from slower memory levels.</p>
+        <div class="theory-detail">
+          <div>• <strong>L1 hit</strong>: 1 cycle (no stall)</div>
+          <div>• <strong>L1 miss → L2</strong>: 4–12 cycle penalty</div>
+          <div>• <strong>L2 miss → DRAM</strong>: 50–200 cycle penalty</div>
+          <div>• Replacement policies: LRU, FIFO, Random</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<!-- ══════════════ PAGE: ABOUT ══════════════ -->
+<main id="page-about" class="page" style="display:none;">
+  <div class="about-layout">
+    <div class="about-hero">
+      <h1>PipelineOS</h1>
+      <p class="about-tagline">An interactive 5-Stage MIPS pipeline simulator built for COA education</p>
+    </div>
+    <div class="about-grid">
+      <div class="about-card">
+        <h3>Project</h3>
+        <div class="about-field"><span>Course</span><span>Computer Organization & Architecture</span></div>
+        <div class="about-field"><span>Guide</span><span>Dr. Varun Kumar</span></div>
+        <div class="about-field"><span>Institute</span><span>IIIT Vadodara — ICD</span></div>
+        <div class="about-field"><span>Year</span><span>2025</span></div>
+      </div>
+      <div class="about-card">
+        <h3>Team</h3>
+        <div class="about-field"><span>Shivam Raval</span><span>202411080</span></div>
+        <div class="about-field"><span>Rajdeepsinh Rathod</span><span>202411079</span></div>
+        <div class="about-field"><span>Kadivar Nazisraza</span><span>202411048</span></div>
+        <div class="about-field"><span>Mayur Baldaniya</span><span>202411016</span></div>
+        <div class="about-field"><span>Soham Vora</span><span>202411097</span></div>
+        <div class="about-field"><span>Naman Panwar</span><span>202411064</span></div>
+      </div>
+      <div class="about-card">
+        <h3>Features</h3>
+        <div class="about-feat">✦ Real-time pipeline visualization</div>
+        <div class="about-feat">✦ Accurate RAW / Control / Structural hazard detection</div>
+        <div class="about-feat">✦ Data forwarding simulation</div>
+        <div class="about-feat">✦ Cache model with configurable associativity</div>
+        <div class="about-feat">✦ Cycle-by-cycle step-through with register view</div>
+        <div class="about-feat">✦ Export to PNG / CSV</div>
+        <div class="about-feat">✦ Dark / Light theme</div>
+        <div class="about-feat">✦ No dependencies — pure HTML/CSS/JS</div>
+      </div>
+      <div class="about-card">
+        <h3>Results</h3>
+        <div class="about-feat">✦ Forwarding improves CPI by up to 36%</div>
+        <div class="about-feat">✦ Load-use hazard always costs 1 stall</div>
+        <div class="about-feat">✦ Branch prediction halves control penalty</div>
+        <div class="about-feat">✦ Combined optimizations: ~23% efficiency gain</div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<footer class="app-footer">
+  <span>PipelineOS · MIPS 5-Stage Simulator</span>
+  <span>IIIT Vadodara — ICD · COA 2025</span>
+</footer>
+
+<script>
+/* ═══════════════════════════════════════════
+   PipelineOS — Parser
+   ═══════════════════════════════════════════ */
+
+const PRESETS = {
+  raw: `ADD R1, R2, R3
+SUB R4, R1, R5
+AND R6, R1, R7
+OR  R8, R4, R7`,
+
+  'load-use': `LW  R1, 0(R2)
+ADD R3, R1, R4
+SUB R5, R3, R6
+AND R7, R5, R1`,
+
+  branch: `BEQ R1, R2, done
+ADD R3, R4, R5
+SUB R6, R7, R8
+LW  R9, 0(R1)`,
+
+  forwarding: `ADD R1, R2, R3
+SUB R4, R1, R5
+AND R6, R4, R7
+OR  R8, R1, R6
+XOR R9, R8, R4`,
+
+  struct: `MUL R1, R2, R3
+MUL R4, R5, R6
+ADD R7, R1, R4
+LW  R8, 0(R1)
+LW  R9, 4(R1)`,
+
+  cache: `LW  R1, 0(R2)
+LW  R3, 64(R2)
+ADD R4, R1, R3
+SW  R4, 128(R2)
+LW  R5, 192(R2)`,
+
+  combined: `LW  R1, 0(R2)
+ADD R3, R1, R4
+BEQ R3, R5, done
+MUL R6, R3, R7
+AND R8, R6, R1
+SW  R8, 0(R2)
+OR  R9, R8, R3`
+};
+
+/**
+ * Parse a single instruction line into a structured object.
+ * Returns null for empty/comment lines.
+ */
+function parseInst(line) {
+  line = line.trim();
+  if (!line || line.startsWith('//') || line.startsWith('#') || line.startsWith(';')) return null;
+  // Remove inline comments
+  line = line.split('//')[0].split('#')[0].trim();
+  if (!line) return null;
+
+  const isBranch = /^(BEQ|BNE|BLT|BGT|BLE|BGE|J\b|JR|JAL)\b/i.test(line);
+  const isLoad   = /^(LW|LB|LH|LD)\b/i.test(line);
+  const isStore  = /^(SW|SB|SH|SD)\b/i.test(line);
+  const isMul    = /^(MUL|MULT|DIV)\b/i.test(line);
+
+  const mnemMatch = line.match(/^([A-Z]+)/i);
+  if (!mnemMatch) return null;
+  const mnem = mnemMatch[1].toUpperCase();
+
+  // Collect all register tokens (R0..R31 or $0..$31)
+  const regs = [];
+  const regPattern = /\b(?:[Rr]|(?<!\w)\$)(\d+)\b/g;
+  let m;
+  while ((m = regPattern.exec(line)) !== null) {
+    regs.push(`R${m[1]}`);
+  }
+
+  // Collect memory offset (e.g., "64(R2)" → addrOffset=64)
+  const offMatch = line.match(/(-?\d+)\s*\(/);
+  const addrOffset = offMatch ? parseInt(offMatch[1], 10) : 0;
+
+  let dest = null, src1 = null, src2 = null;
+
+  if (isStore) {
+    // SW Rsrc, offset(Rbase) → src1=Rsrc, src2=Rbase (no dest)
+    dest = null;
+    src1 = regs[0] || null;
+    src2 = regs[1] || null;
+  } else if (isBranch) {
+    // BEQ Rs1, Rs2, label
+    dest = null;
+    src1 = regs[0] || null;
+    src2 = regs[1] || null;
+  } else if (isLoad) {
+    // LW Rdest, offset(Rbase) → dest=Rdest, src1=Rbase
+    dest = regs[0] || null;
+    src1 = regs[1] || null;
+    src2 = null;
+  } else {
+    // R-type: OP Rdest, Rs1, Rs2
+    dest = regs[0] || null;
+    src1 = regs[1] || null;
+    src2 = regs[2] || null;
+  }
+
+  return {
+    text: line,
+    mnem,
+    isBranch,
+    isLoad,
+    isStore,
+    isMul,
+    dest,
+    src1,
+    src2,
+    addrOffset
+  };
+}
+
+/**
+ * Parse multiple lines; returns array of valid instructions.
+ */
+function parseProgram(text) {
+  return text.split('\n').map(parseInst).filter(Boolean);
+}
+
+</script>
+<script>
+/* ═══════════════════════════════════════════
+   PipelineOS — Pipeline Simulator Core
+   Correctly models 5-stage MIPS pipeline:
+   IF → ID → EX → MEM → WB
+
+   Hazard detection:
+   - RAW data hazards (with/without forwarding)
+   - Load-use hazard (always 1 stall with forwarding)
+   - Control hazards (branch penalties)
+   - Structural hazards (MEM port, multiplier)
+   - Cache miss penalties
+   ═══════════════════════════════════════════ */
+
+const STAGES = ['IF', 'ID', 'EX', 'MEM', 'WB'];
+const MUL_LATENCY = 3; // MUL/DIV take 3 EX cycles
+
+/**
+ * Run the full pipeline simulation.
+ * Returns a comprehensive result object used by the UI.
+ */
+function runPipeline(insts, opts, cacheModel) {
+  const {
+    forwarding  = true,
+    branchPred  = false,
+    structural  = false,
+    cacheEnable = false,
+    cachePenalty = 4
+  } = opts;
+
+  const N = insts.length;
+
+  // startCycle[i] = cycle when instruction i enters IF stage
+  const startCycle = new Array(N).fill(0);
+  // stallsBefore[i] = total stall cycles inserted before instruction i starts
+  const stallsBefore = new Array(N).fill(0);
+
+  const dataHazards  = [];
+  const ctrlHazards  = [];
+  const structHazards = [];
+  const cacheHazards  = [];
+  const fwdPaths      = [];
+
+  // Track which pipeline stages are occupied in each cycle
+  // memBusy[cycle] = true if MEM port occupied
+  // mulBusy[cycle] = true if multiplier occupied
+  const memBusy = {};
+  const mulBusy = {};
+
+  // Compute start cycle for each instruction
+  for (let i = 0; i < N; i++) {
+    // Start after previous instruction's IF, plus any stalls
+    let earliest = i === 0 ? 1 : startCycle[i - 1] + 1;
+    let extraStalls = 0;
+
+    // ── DATA HAZARDS ──────────────────────────────────
+    // Check all prior instructions for RAW dependencies
+    for (let j = Math.max(0, i - 4); j < i; j++) {
+      const prod = insts[j];
+      const cons = insts[i];
+
+      // Producer must write to a register (have dest)
+      if (!prod.dest) continue;
+
+      // Consumer must read that register
+      const readsReg =
+        cons.src1 === prod.dest ||
+        cons.src2 === prod.dest;
+
+      if (!readsReg) continue;
+
+      // When does producer's result become available?
+      // Without forwarding: after WB (startCycle[j] + 4)
+      // With EX→EX fwd:    after EX (startCycle[j] + 2)
+      // With MEM→EX fwd:   after MEM (startCycle[j] + 3)
+      // Load-use special:  after MEM (startCycle[j] + 3), consumer needs result at EX (startCycle[i] + 2)
+
+      // Consumer reads registers at ID stage: startCycle[i] + 1
+      // Consumer needs value at EX stage: startCycle[i] + 2 (with forwarding)
+      //                                   startCycle[i] + 1 (without — reads at ID)
+
+      const prodEX  = startCycle[j] + 2; // cycle producer is in EX
+      const prodMEM = startCycle[j] + 3; // cycle producer is in MEM
+      const prodWB  = startCycle[j] + 4; // cycle producer completes WB
+
+      // Distance in instructions
+      const distance = i - j;
+
+      let stalls = 0;
+      let forwarded = false;
+      let hazType = 'RAW';
+
+      if (prod.isLoad) {
+        // LOAD-USE hazard
+        hazType = 'Load-Use';
+        if (forwarding) {
+          // With forwarding: load result available after MEM (prodMEM)
+          // Consumer needs it at EX: max(earliest, prodMEM - 1) ... let's calculate
+          // Consumer EX happens at: consStart + 2
+          // We need: consStart + 2 >= prodMEM
+          // i.e., consStart >= prodMEM - 2 = startCycle[j] + 1
+          // But consumer also can't start before earliest
+          const minStart = startCycle[j] + 2; // load-use always needs 1 stall
+          if (earliest < minStart) {
+            stalls = minStart - earliest;
+          }
+          forwarded = stalls === 0 && distance >= 2;
+          // Can forward MEM→EX if distance >= 2 with no stall
+          if (stalls > 0) forwarded = false;
+        } else {
+          // Without forwarding: need prodWB before consumer's ID
+          // consumer ID: consStart + 1; need prodWB <= consStart + 1
+          // i.e., consStart >= prodWB - 1 = startCycle[j] + 3
+          const minStart = startCycle[j] + 3;
+          if (earliest < minStart) {
+            stalls = minStart - earliest;
+          }
+        }
+      } else {
+        // Regular ALU instruction
+        if (forwarding) {
+          // With EX→EX forwarding: result available after EX (prodEX)
+          // Consumer needs it at EX: consStart + 2
+          // Need: consStart + 2 >= prodEX i.e. consStart >= prodEX - 2 = startCycle[j]
+          // With MEM→EX forwarding: result available after MEM (prodMEM)
+          // Need: consStart + 2 >= prodMEM i.e. consStart >= prodMEM - 2 = startCycle[j] + 1
+          // Best case with forwarding: no stalls for distance >= 1 (EX→EX covers distance=1)
+          // No stalls needed for distance >= 1 with full forwarding
+          stalls = 0;
+          forwarded = distance <= 2; // forwarding paths exist
+          if (forwarded) {
+            // Record forwarding path
+            const fromStage = distance === 1 ? 'EX/MEM' : 'MEM/WB';
+            fwdPaths.push({
+              from: j,
+              to: i,
+              reg: prod.dest,
+              fromStage,
+              toStage: 'EX'
+            });
+          }
+        } else {
+          // Without forwarding: need result written at WB, read at ID
+          // consumer ID: earliest + 1; need prodWB <= earliest + 1
+          // i.e., earliest >= prodWB - 1 = startCycle[j] + 3
+          const minStart = startCycle[j] + 3;
+          if (earliest < minStart) {
+            stalls = minStart - earliest;
+          }
+        }
+      }
+
+      if (stalls > 0 || (forwarded && distance <= 2)) {
+        // Only record if not already covered by a closer producer
+        const alreadyRecorded = dataHazards.find(
+          h => h.consumer === i && h.reg === prod.dest && h.stalls >= stalls
+        );
+        if (!alreadyRecorded) {
+          dataHazards.push({
+            producer: j,
+            consumer: i,
+            reg: prod.dest,
+            type: hazType,
+            stalls: forwarding ? (prod.isLoad ? stalls : 0) : stalls,
+            forwarded: forwarding && !prod.isLoad && distance <= 2
+          });
+        }
+      }
+
+      if (stalls > 0 && stalls > extraStalls) {
+        extraStalls = stalls;
+      }
+    }
+
+    earliest += extraStalls;
+
+    // ── CONTROL HAZARDS ───────────────────────────────
+    if (insts[i].isBranch) {
+      // Branch resolves at end of EX stage (cycle = startCycle[i] + 2)
+      const penalty = branchPred ? 1 : 2;
+      ctrlHazards.push({
+        inst: i,
+        penalty,
+        predicted: branchPred
+      });
+      // Instructions after branch get their start shifted
+      // (handled by adjusting startCycle of subsequent instructions)
+    }
+
+    // Apply branch penalty from previous branches
+    for (const bh of ctrlHazards) {
+      if (bh.inst >= i) continue;
+      // Branch resolves at: startCycle[bh.inst] + 2 (EX stage)
+      // First valid instruction after branch must wait until resolution
+      const branchResolve = startCycle[bh.inst] + 2 + 1; // +1: next cycle after resolve
+      const instOffset = i - bh.inst; // how many instructions after branch
+      if (instOffset <= bh.penalty) {
+        // This instruction falls within the penalty window
+        const minStart = branchResolve + (instOffset - 1);
+        if (earliest < minStart) earliest = minStart;
+      }
+    }
+
+    // ── STRUCTURAL HAZARDS ────────────────────────────
+    if (structural) {
+      // MEM port conflict: LW/SW share memory bus with IF stage
+      if (insts[i].isLoad || insts[i].isStore) {
+        const myMEMcycle = earliest + 3;
+        // Check if another instruction is in MEM at same cycle
+        for (let j = 0; j < i; j++) {
+          const jMEM = startCycle[j] + 3;
+          if (jMEM === myMEMcycle && (insts[j].isLoad || insts[j].isStore)) {
+            // Conflict: stall until next available slot
+            const conflict = {
+              inst1: j, inst2: i,
+              cycle: myMEMcycle,
+              type: 'MEM Port Conflict',
+              stalls: 1
+            };
+            structHazards.push(conflict);
+            earliest += 1;
+            break;
+          }
+        }
+      }
+
+      // Multiplier conflict: MUL/DIV takes MUL_LATENCY cycles
+      if (insts[i].isMul) {
+        // Check if multiplier is busy at our EX cycle
+        const myEXcycle = earliest + 2;
+        let mulConflict = false;
+        for (let j = 0; j < i; j++) {
+          if (!insts[j].isMul) continue;
+          const jEX = startCycle[j] + 2;
+          // Multiplier busy from jEX to jEX + MUL_LATENCY - 1
+          if (myEXcycle >= jEX && myEXcycle < jEX + MUL_LATENCY) {
+            mulConflict = true;
+            const waitUntil = jEX + MUL_LATENCY;
+            const newStart = waitUntil - 2;
+            if (earliest < newStart) {
+              const stallsNeeded = newStart - earliest;
+              structHazards.push({
+                inst1: j, inst2: i,
+                cycle: myEXcycle,
+                type: 'Multiplier Conflict',
+                stalls: stallsNeeded
+              });
+              earliest = newStart;
+            }
+            break;
+          }
+        }
+      }
+    }
+
+    startCycle[i] = earliest;
+    stallsBefore[i] = earliest - (i === 0 ? 1 : startCycle[i - 1] + 1);
+    if (stallsBefore[i] < 0) stallsBefore[i] = 0;
+  }
+
+  // ── CACHE HAZARDS ─────────────────────────────────
+  // Apply cache miss penalties AFTER basic scheduling
+  if (cacheEnable && cacheModel) {
+    for (let i = 0; i < N; i++) {
+      if (!insts[i].isLoad && !insts[i].isStore) continue;
+      const addr = Math.abs(insts[i].addrOffset) >> 2; // word address
+      const result = cacheModel.access(addr, insts[i].isStore);
+      if (!result.hit) {
+        cacheHazards.push({
+          inst: i,
+          address: addr,
+          type: result.type || 'Cache Miss',
+          penalty: cacheModel.penalty
+        });
+        // Shift all subsequent instructions
+        for (let j = i + 1; j < N; j++) {
+          startCycle[j] += cacheModel.penalty;
+        }
+      }
+    }
+  }
+
+  // Compute total cycles: last instruction's WB completes at startCycle[N-1] + 4
+  const totalCycles = N > 0 ? startCycle[N - 1] + 4 : 4;
+
+  // Count stalls
+  let stallCount = 0;
+  let ctrlStalls = 0;
+  for (const h of dataHazards) stallCount += h.stalls;
+  for (const h of ctrlHazards) ctrlStalls += h.penalty;
+
+  return {
+    insts,
+    startCycle,
+    stallsBefore,
+    totalCycles,
+    dataHazards,
+    ctrlHazards,
+    structHazards,
+    cacheHazards,
+    fwdPaths,
+    stallCount,
+    ctrlStalls,
+    forwarding,
+    structural,
+    cacheEnabled: cacheEnable
+  };
+}
+
+/* ═══════════════════════════════════════════
+   CACHE MODEL
+   ═══════════════════════════════════════════ */
+class CacheModel {
+  constructor(numLines = 16, assoc = 1, penalty = 4, mode = 'auto') {
+    this.numSets = Math.max(1, Math.floor(numLines / assoc));
+    this.assoc   = assoc;
+    this.penalty = penalty;
+    this.mode    = mode;
+    this.hits    = 0;
+    this.misses  = 0;
+    this.accessLog = [];
+
+    // Initialize sets
+    this.sets = Array.from({ length: this.numSets }, () =>
+      Array.from({ length: assoc }, () => ({ valid: false, tag: -1, lruAge: 0 }))
+    );
+    this._lruClock = 0;
+  }
+
+  access(wordAddr, isStore = false) {
+    const setIdx = wordAddr % this.numSets;
+    const tag    = Math.floor(wordAddr / this.numSets);
+    const set    = this.sets[setIdx];
+
+    // Check for hit
+    for (const way of set) {
+      if (way.valid && way.tag === tag) {
+        this.hits++;
+        way.lruAge = ++this._lruClock;
+        const entry = { set: setIdx, tag, hit: true };
+        this.accessLog.push(entry);
+        return { hit: true };
+      }
+    }
+
+    // Miss: determine if we should actually miss based on mode
+    if (this.mode !== 'auto') {
+      const missRate = parseInt(this.mode, 10) / 100;
+      const shouldMiss = Math.random() < missRate;
+      if (!shouldMiss) {
+        this.hits++;
+        this.accessLog.push({ set: setIdx, tag, hit: true });
+        return { hit: true };
+      }
+    }
+
+    // Miss: find LRU victim
+    this.misses++;
+    let victim = set[0];
+    for (const way of set) {
+      if (!way.valid) { victim = way; break; }
+      if (way.lruAge < victim.lruAge) victim = way;
+    }
+    victim.valid  = true;
+    victim.tag    = tag;
+    victim.lruAge = ++this._lruClock;
+
+    this.accessLog.push({ set: setIdx, tag, hit: false });
+    return { hit: false, type: 'D-Cache Miss' };
+  }
+
+  get hitRate() {
+    const total = this.hits + this.misses;
+    return total === 0 ? '—' : ((this.hits / total) * 100).toFixed(1) + '%';
+  }
+}
+
+/* ═══════════════════════════════════════════
+   REGISTER COMPUTATION
+   ═══════════════════════════════════════════ */
+function makeInitialRegs() {
+  const regs = {};
+  for (let i = 0; i <= 31; i++) regs[`R${i}`] = i; // R0=0, R1=1, ... R31=31
+  return regs;
+}
+
+function computeResult(inst, regs) {
+  const a = regs[inst.src1] ?? 0;
+  const b = regs[inst.src2] ?? 0;
+  const imm = inst.addrOffset ?? 0;
+
+  switch (inst.mnem) {
+    case 'ADD': case 'ADDI': return (a + b) | 0;
+    case 'SUB': case 'SUBI': return (a - b) | 0;
+    case 'AND': case 'ANDI': return (a & b) | 0;
+    case 'OR':  case 'ORI':  return (a | b) | 0;
+    case 'XOR': case 'XORI': return (a ^ b) | 0;
+    case 'NOR':              return (~(a | b)) | 0;
+    case 'SLT':              return a < b ? 1 : 0;
+    case 'SLL':              return (a << (b & 31)) | 0;
+    case 'SRL':              return (a >>> (b & 31)) | 0;
+    case 'SRA':              return (a >> (b & 31)) | 0;
+    case 'MUL': case 'MULT': return Math.imul(a, b);
+    case 'DIV':              return b !== 0 ? Math.trunc(a / b) : 0;
+    case 'LW':               return (a + imm) | 0; // simulated: load = base + offset
+    default:                 return 0;
+  }
+}
+
+</script>
+<script>
+/* ═══════════════════════════════════════════
+   PipelineOS — UI Controller
+   ═══════════════════════════════════════════ */
+
+// ─── STATE ───────────────────────────────────
+let simResult   = null;
+let currentCycle = 1;
+let playing     = false;
+let playTimer   = null;
+let cacheModel  = null;
+
+// ─── INIT ────────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+  initTheme();
+  loadPreset('combined');
+  buildRegGrid(makeInitialRegs());
+  bindEvents();
+});
+
+function bindEvents() {
+  // Preset buttons
+  document.querySelectorAll('.preset-btn').forEach(btn => {
+    btn.addEventListener('click', () => loadPreset(btn.dataset.preset));
+  });
+
+  // Run button
+  document.getElementById('btn-run').addEventListener('click', runSimulation);
+
+  // Playback
+  document.getElementById('btn-prev').addEventListener('click', stepPrev);
+  document.getElementById('btn-next').addEventListener('click', stepNext);
+  document.getElementById('btn-play').addEventListener('click', togglePlay);
+  document.getElementById('btn-reset').addEventListener('click', resetView);
+
+  // Export
+  document.getElementById('btn-csv').addEventListener('click', exportCSV);
+  document.getElementById('btn-png').addEventListener('click', exportPNG);
+
+  // Tabs
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => switchTab(btn.dataset.tab, btn));
+  });
+}
+
+// ─── THEME ───────────────────────────────────
+function initTheme() {
+  const saved = localStorage.getItem('pipelineOS-theme') || 'dark';
+  setTheme(saved);
+}
+
+function toggleTheme() {
+  const current = document.documentElement.getAttribute('data-theme');
+  setTheme(current === 'dark' ? 'light' : 'dark');
+}
+
+function setTheme(t) {
+  document.documentElement.setAttribute('data-theme', t);
+  localStorage.setItem('pipelineOS-theme', t);
+}
+
+// ─── PAGE NAVIGATION ─────────────────────────
+function switchPage(id) {
+  document.querySelectorAll('.page').forEach(p => {
+    p.style.display = 'none';
+    p.classList.remove('active');
+  });
+  const target = document.getElementById(`page-${id}`);
+  if (target) {
+    target.style.display = id === 'simulator' ? 'block' : 'block';
+    target.classList.add('active');
+  }
+  document.querySelectorAll('.nav-pill').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.page === id);
+  });
+}
+
+// ─── PRESET LOADER ───────────────────────────
+function loadPreset(key) {
+  if (PRESETS[key]) {
+    document.getElementById('inst-input').value = PRESETS[key];
+    document.getElementById('parse-error').style.display = 'none';
+  }
+}
+
+// ─── SIMULATION ──────────────────────────────
+function runSimulation() {
+  const rawText = document.getElementById('inst-input').value;
+  const insts   = parseProgram(rawText);
+  const errEl   = document.getElementById('parse-error');
+
+  if (!insts.length) {
+    errEl.textContent = '⚠ No valid instructions found. Check your input.';
+    errEl.style.display = 'block';
+    return;
+  }
+  errEl.style.display = 'none';
+
+  const forwarding   = document.getElementById('opt-forwarding').checked;
+  const branchPred   = document.getElementById('opt-branch-pred').checked;
+  const structural   = document.getElementById('opt-structural').checked;
+  const cacheEnable  = document.getElementById('opt-cache').checked;
+
+  const numLines     = parseInt(document.getElementById('cache-size').value, 10);
+  const assoc        = parseInt(document.getElementById('cache-assoc').value, 10);
+  const penalty      = parseInt(document.getElementById('cache-penalty').value, 10) || 4;
+  const missMode     = document.getElementById('cache-miss-mode').value;
+
+  cacheModel = new CacheModel(numLines, assoc, penalty, missMode);
+
+  simResult = runPipeline(insts, {
+    forwarding, branchPred, structural, cacheEnable, cachePenalty: penalty
+  }, cacheModel);
+
+  // Animate run button
+  const btn = document.getElementById('btn-run');
+  btn.style.transform = 'scale(0.97)';
+  setTimeout(() => { btn.style.transform = ''; }, 200);
+
+  renderStats(simResult, insts.length);
+  renderTable(simResult);
+  renderHazards(simResult);
+  renderCachePanel(simResult);
+
+  // Show controls and tabs
+  document.getElementById('playbar').style.display = 'flex';
+  document.getElementById('legend-bar').style.display = 'flex';
+  document.getElementById('detail-section').style.display = 'flex';
+
+  currentCycle = 1;
+  buildRegGrid(makeInitialRegs());
+  updateCycleDisplay();
+}
+
+// ─── RENDER TABLE ────────────────────────────
+function renderTable(result, activeCycle) {
+  const { insts, startCycle, stallsBefore, totalCycles, ctrlHazards, fwdPaths,
+          forwarding, cacheHazards } = result;
+
+  const highlight = document.getElementById('opt-highlight').checked;
+  const stepMode  = activeCycle !== undefined;
+  const N         = insts.length;
+
+  // Build flush cycle map: flushCycle → true
+  const flushCycles = {};
+  ctrlHazards.forEach(h => {
+    for (let p = 1; p <= h.penalty; p++) {
+      flushCycles[startCycle[h.inst] + 1 + p] = true;
+    }
+  });
+
+  let html = `<table class="ptable${stepMode ? ' step-mode' : ''}">`;
+
+  // Header row
+  html += '<tr><th></th>';
+  for (let c = 1; c <= totalCycles; c++) {
+    const isAct = stepMode && c === activeCycle;
+    const isDim = stepMode && !isAct;
+    const flushMark = flushCycles[c] ? ' style="color:var(--orange)"' : '';
+    html += `<th class="${isAct ? 'col-active' : ''} ${isDim ? 'col-dim' : ''}"${flushMark}>C${c}</th>`;
+  }
+  html += '</tr>';
+
+  // Instruction rows
+  for (let i = 0; i < N; i++) {
+    const s   = startCycle[i];
+    const st  = stallsBefore[i];
+    const inst = insts[i];
+
+    const shortOps = inst.text.replace(/^[A-Z]+\s*/i, '').trim().substring(0, 24);
+    const labelHtml = `<td class="row-label">` +
+      `<span class="idx">I${i}·</span>` +
+      `<span class="mnem">${esc(inst.mnem)}</span> ` +
+      `<span class="ops">${esc(shortOps)}</span></td>`;
+
+    html += '<tr>' + labelHtml;
+
+    for (let c = 1; c <= totalCycles; c++) {
+      const si = c - s;
+      const isAct = stepMode && c === activeCycle;
+      const isDim = stepMode && !isAct;
+      const ccls = isAct ? 'col-active-cell' : (isDim ? 'col-dim' : '');
+
+      let stageCls = 's-EMPTY';
+      let lbl = '';
+      let extra = '';
+
+      const inStall = st > 0 && c >= (s - st) && c < s;
+
+      if (inStall) {
+        stageCls = 's-STALL';
+        lbl = 'STALL';
+        if (highlight) extra = 'box-shadow:inset 0 0 0 2px rgba(248,113,113,.4);';
+      } else if (si >= 0 && si < STAGES.length) {
+        const stage = STAGES[si];
+        const isFwd  = forwarding && fwdPaths.some(f => f.to === i && stage === 'EX');
+        const isMiss = cacheHazards.some(ch => ch.inst === i && stage === 'MEM');
+
+        if (isMiss) {
+          stageCls = 's-CACHE'; lbl = '$MISS';
+        } else if (isFwd) {
+          stageCls = 's-FWD'; lbl = 'FWD';
+          if (highlight) extra = 'box-shadow:inset 0 0 0 2px rgba(45,212,191,.4);';
+        } else {
+          stageCls = `s-${stage}`; lbl = stage;
+        }
+      }
+
+      html += `<td class="${stageCls}${ccls ? ' ' + ccls : ''}" style="${extra}" title="I${i}: ${esc(inst.text.trim())} | C${c} | ${lbl || '—'}">${lbl}</td>`;
+    }
+
+    html += '</tr>';
+
+    // Flush rows
+    const bh = ctrlHazards.find(h => h.inst === i);
+    if (bh) {
+      for (let p = 1; p <= bh.penalty; p++) {
+        const fc = s + 1 + p;
+        html += '<tr>';
+        html += `<td class="row-label flush-label">↳ FLUSH #${p}</td>`;
+        for (let c = 1; c <= totalCycles; c++) {
+          const isAct = stepMode && c === activeCycle;
+          const isDim = stepMode && !isAct;
+          const ccls = isAct ? 'col-active-cell' : (isDim ? 'col-dim' : '');
+          html += c === fc
+            ? `<td class="s-FLUSH${ccls ? ' ' + ccls : ''}">FLUSH</td>`
+            : `<td class="s-EMPTY${ccls ? ' ' + ccls : ''}"></td>`;
+        }
+        html += '</tr>';
+      }
+    }
+  }
+
+  html += '</table>';
+  document.getElementById('pipeline-canvas').innerHTML = html;
+}
+
+// ─── RENDER STATS ────────────────────────────
+function renderStats(r, n) {
+  const allStalls = r.stallCount + r.ctrlStalls;
+  setEl('stat-cycles',    r.totalCycles);
+  setEl('stat-insts',     n);
+  setEl('stat-cpi',       (r.totalCycles / n).toFixed(2));
+  setEl('stat-eff',       ((n / r.totalCycles) * 100).toFixed(1) + '%');
+  setEl('stat-stalls',    allStalls);
+  setEl('stat-data-hz',   r.dataHazards.length);
+  setEl('stat-ctrl-hz',   r.ctrlHazards.length);
+  setEl('stat-struct-hz', r.structHazards.length);
+  setEl('stat-cache-miss',r.cacheHazards.length);
+  setEl('stat-fwd',       r.fwdPaths.length);
+}
+
+// ─── RENDER HAZARDS ──────────────────────────
+function renderHazards(r) {
+  const { insts, dataHazards, ctrlHazards, structHazards,
+          cacheHazards, fwdPaths, forwarding, structural, cacheEnabled } = r;
+
+  // Data hazards
+  const dl = document.getElementById('data-hazard-list');
+  dl.innerHTML = '';
+  if (!dataHazards.length) {
+    dl.innerHTML = '<li><span class="hz-icon">✅</span><div><span class="hz-main" style="color:var(--green)">No data hazards detected</span></div></li>';
+  } else {
+    dataHazards.forEach(h => {
+      const prod = insts[h.producer]?.text.trim() || '';
+      const cons = insts[h.consumer]?.text.trim() || '';
+      const icon = h.forwarded ? '↪' : '⚡';
+      const col  = h.forwarded ? 'var(--teal)' : 'var(--red)';
+      dl.innerHTML += `<li><span class="hz-icon" style="color:${col}">${icon}</span><div>
+        <span class="hz-main">${esc(h.type)}</span> on <code style="font-family:'Space Mono',monospace;color:var(--accent)">${esc(h.reg)}</code>
+        <span class="hz-detail">I${h.producer}: ${esc(prod.substring(0,26))} → I${h.consumer}: ${esc(cons.substring(0,26))}</span>
+        <span class="hz-detail">${h.stalls > 0 ? h.stalls + ' stall(s)' : 'No stall'} ${h.forwarded ? '· forwarding applied' : ''}</span>
+      </div></li>`;
+    });
+  }
+
+  // Control hazards
+  const cl = document.getElementById('ctrl-hazard-list');
+  cl.innerHTML = '';
+  if (!ctrlHazards.length) {
+    cl.innerHTML = '<li><span class="hz-icon">✅</span><div><span class="hz-main" style="color:var(--green)">No control hazards detected</span></div></li>';
+  } else {
+    ctrlHazards.forEach(h => {
+      const instText = insts[h.inst]?.text.trim() || '';
+      cl.innerHTML += `<li><span class="hz-icon" style="color:var(--yellow)">⟳</span><div>
+        <span class="hz-main">Branch Hazard</span>
+        <span class="hz-detail">I${h.inst}: ${esc(instText.substring(0,30))}</span>
+        <span class="hz-detail">${h.penalty} cycle(s) flushed · ${h.predicted ? 'predict not-taken (1c)' : 'no prediction (2c)'}</span>
+      </div></li>`;
+    });
+  }
+
+  // Forwarding paths
+  const fs = document.getElementById('fwd-section');
+  const fl = document.getElementById('fwd-paths-list');
+  if (fwdPaths.length > 0 && forwarding) {
+    fs.style.display = 'block';
+    fl.innerHTML = '';
+    fwdPaths.forEach(f => {
+      fl.innerHTML += `<div class="fwd-path">
+        I${f.from} [${esc(f.fromStage)}] <span class="farrow">──${esc(f.reg)}──▶</span> I${f.to} [${esc(f.toStage)}]
+      </div>`;
+    });
+  } else {
+    fs.style.display = 'none';
+  }
+
+  // Structural hazards
+  const ss = document.getElementById('struct-section');
+  const sl = document.getElementById('struct-hazard-list');
+  if (structHazards.length > 0 && structural) {
+    ss.style.display = 'block';
+    sl.innerHTML = '';
+    structHazards.forEach(h => {
+      sl.innerHTML += `<li><span class="hz-icon" style="color:var(--purple)">🔒</span><div>
+        <span class="hz-main" style="color:var(--purple)">${esc(h.type)}</span>
+        <span class="hz-detail">I${h.inst1} conflicts with I${h.inst2} at C${h.cycle} · ${h.stalls} stall(s)</span>
+      </div></li>`;
+    });
+  } else {
+    ss.style.display = 'none';
+  }
+
+  // Cache hazards
+  const chs = document.getElementById('cache-hz-section');
+  const chl = document.getElementById('cache-hazard-list');
+  if (cacheHazards.length > 0 && cacheEnabled) {
+    chs.style.display = 'block';
+    chl.innerHTML = '';
+    cacheHazards.forEach(h => {
+      const addrHex = (h.address * 4).toString(16).padStart(4, '0');
+      chl.innerHTML += `<li><span class="hz-icon" style="color:var(--orange)">💾</span><div>
+        <span class="hz-main" style="color:var(--orange)">${esc(h.type)}</span>
+        <span class="hz-detail">I${h.inst} · addr 0x${addrHex} · +${h.penalty} stall cycle(s)</span>
+      </div></li>`;
+    });
+  } else {
+    chs.style.display = 'none';
+  }
+}
+
+// ─── RENDER CACHE PANEL ──────────────────────
+function renderCachePanel() {
+  if (!cacheModel) return;
+  const { hits, misses, numSets, assoc, sets, accessLog } = cacheModel;
+  const tot = hits + misses;
+
+  setEl('cs-accesses', tot);
+  setEl('cs-hits',     hits);
+  setEl('cs-misses',   misses);
+  setEl('cs-rate',     cacheModel.hitRate);
+  setEl('cs-stalls',   simResult ? simResult.cacheHazards.reduce((a, h) => a + h.penalty, 0) : 0);
+
+  const con = document.getElementById('cache-lines');
+  con.innerHTML = '';
+
+  for (let s = 0; s < numSets; s++) {
+    for (let w = 0; w < assoc; w++) {
+      const entry = sets[s][w];
+      const la = accessLog.filter(a => a.set === s && a.tag === entry.tag).pop();
+      const d = document.createElement('div');
+      d.className = `cache-line${la?.hit ? ' hit' : (la && !la.hit ? ' miss' : '')}`;
+      d.innerHTML = `<div class="cl-set">Set${s}${assoc > 1 ? ` W${w}` : ''}</div>
+        <div class="cl-tag">${entry.valid ? 'Tag:0x' + entry.tag.toString(16).padStart(3, '0') : '&lt;empty&gt;'}</div>
+        <div class="cl-state">${entry.valid ? (la?.hit ? '✅ Hit' : (la ? '❌ Miss' : 'Valid')) : '—'}</div>`;
+      con.appendChild(d);
+    }
+  }
+}
+
+// ─── REGISTER VIEW ───────────────────────────
+function buildRegGrid(regs) {
+  const g = document.getElementById('reg-grid');
+  g.innerHTML = '';
+  for (let i = 0; i <= 31; i++) {
+    const nm = `R${i}`, val = regs[nm] ?? 0;
+    const d = document.createElement('div');
+    d.className = 'reg-cell';
+    d.id = `rc-${nm}`;
+    d.innerHTML = `<div class="reg-name">${nm}</div>
+      <div class="reg-val" id="rv-${nm}">${fmtHex(val)}</div>`;
+    g.appendChild(d);
+  }
+}
+
+function updateRegAtCycle(cycle) {
+  if (!simResult) return;
+  const { insts, startCycle, stallsBefore, fwdPaths, cacheHazards } = simResult;
+  const regs = makeInitialRegs();
+  const justWritten = {};
+  const logLines = [];
+
+  // Apply all WBs that complete by this cycle
+  for (let i = 0; i < insts.length; i++) {
+    const s = startCycle[i];
+    const inst = insts[i];
+    const wbCycle = s + 4;
+    if (wbCycle <= cycle && inst.dest) {
+      regs[inst.dest] = computeResult(inst, regs);
+      justWritten[inst.dest] = wbCycle;
+    }
+  }
+
+  // Generate log for current cycle
+  for (let i = 0; i < insts.length; i++) {
+    const s  = startCycle[i];
+    const st = stallsBefore[i];
+    const inst = insts[i];
+    const si = cycle - s;
+    const inStall = st > 0 && cycle >= (s - st) && cycle < s;
+
+    if (inStall) {
+      logLines.push({ cls: 'log-stall', t: `C${cycle}: I${i} [${esc(inst.mnem)}] ⛔ STALL` });
+    } else if (si >= 0 && si < STAGES.length) {
+      const stage = STAGES[si];
+      if (stage === 'WB' && inst.dest) {
+        logLines.push({ cls: 'log-wb', t: `C${cycle}: I${i} [${esc(inst.mnem)}] ✅ WB → ${inst.dest} = ${fmtHex(regs[inst.dest] ?? 0)}` });
+      } else if (stage === 'MEM' && (inst.isLoad || inst.isStore)) {
+        const miss = simResult.cacheHazards.find(ch => ch.inst === i);
+        if (miss) {
+          logLines.push({ cls: 'log-cache', t: `C${cycle}: I${i} [${esc(inst.mnem)}] 💾 $MISS (+${miss.penalty}c)` });
+        } else {
+          logLines.push({ cls: 'log-default', t: `C${cycle}: I${i} [${esc(inst.mnem)}] ${stage}` });
+        }
+      } else if (stage === 'EX') {
+        const fwd = fwdPaths.find(fp => fp.to === i);
+        if (fwd) {
+          logLines.push({ cls: 'log-fwd', t: `C${cycle}: I${i} [${esc(inst.mnem)}] ↪ EX (fwd ${fwd.reg} from I${fwd.from})` });
+        } else {
+          logLines.push({ cls: 'log-default', t: `C${cycle}: I${i} [${esc(inst.mnem)}] ${stage}` });
+        }
+      } else {
+        logLines.push({ cls: 'log-default', t: `C${cycle}: I${i} [${esc(inst.mnem)}] ${stage}` });
+      }
+    }
+  }
+
+  // Update register cells
+  for (let i = 0; i <= 31; i++) {
+    const nm  = `R${i}`;
+    const val = regs[nm] ?? 0;
+    const cell  = document.getElementById(`rc-${nm}`);
+    const valEl = document.getElementById(`rv-${nm}`);
+    if (!cell || !valEl) continue;
+    valEl.textContent = fmtHex(val);
+    cell.className = 'reg-cell' +
+      (justWritten[nm] === cycle ? ' just-written' : justWritten[nm] !== undefined ? ' dirty' : '');
+  }
+
+  setEl('reg-cycle-lbl', `${cycle} / ${simResult.totalCycles}`);
+
+  const logEl = document.getElementById('cycle-log');
+  logEl.innerHTML = logLines.length
+    ? logLines.map(l => `<div class="${l.cls}">${l.t}</div>`).join('')
+    : '<span style="color:var(--muted)">No active stages this cycle.</span>';
+  logEl.scrollTop = 0;
+}
+
+// ─── STEP CONTROLS ───────────────────────────
+function stepNext() {
+  if (!simResult) return;
+  if (currentCycle < simResult.totalCycles) { currentCycle++; updateCycleDisplay(); }
+}
+
+function stepPrev() {
+  if (!simResult) return;
+  if (currentCycle > 1) { currentCycle--; updateCycleDisplay(); }
+}
+
+function resetView() {
+  stopPlay();
+  currentCycle = 1;
+  updateCycleDisplay();
+}
+
+function stopPlay() {
+  if (playTimer) { clearInterval(playTimer); playTimer = null; }
+  playing = false;
+  document.getElementById('btn-play').textContent = '⏵';
+}
+
+function togglePlay() {
+  if (playing) { stopPlay(); return; }
+  if (!simResult) return;
+  playing = true;
+  document.getElementById('btn-play').textContent = '⏸';
+  const spd = parseInt(document.getElementById('speed-select').value, 10) || 500;
+  if (currentCycle >= simResult.totalCycles) currentCycle = 1;
+  playTimer = setInterval(() => {
+    if (currentCycle >= simResult.totalCycles) { stopPlay(); return; }
+    currentCycle++;
+    updateCycleDisplay();
+  }, spd);
+}
+
+function updateCycleDisplay() {
+  if (!simResult) return;
+  const total = simResult.totalCycles;
+  document.getElementById('cycle-display').textContent = `C${currentCycle} / C${total}`;
+  document.getElementById('progress-fill').style.width = ((currentCycle / total) * 100) + '%';
+  document.getElementById('btn-prev').disabled = currentCycle <= 1;
+  document.getElementById('btn-next').disabled = currentCycle >= total;
+  renderTable(simResult, currentCycle);
+  updateRegAtCycle(currentCycle);
+}
+
+// ─── TABS ────────────────────────────────────
+function switchTab(id, btn) {
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  const panel = document.getElementById(id);
+  if (panel) panel.classList.add('active');
+  if (btn) btn.classList.add('active');
+}
+
+// ─── EXPORT ──────────────────────────────────
+function exportPNG() {
+  if (!simResult) return;
+  const target = document.getElementById('pipeline-export-target');
+
+  const doExport = () => {
+    html2canvas(target, {
+      backgroundColor: getComputedStyle(document.documentElement).getPropertyValue('--bg'),
+      scale: 2,
+      useCORS: true,
+      logging: false
+    }).then(canvas => {
+      const a = document.createElement('a');
+      a.download = `pipeline_C${currentCycle}.png`;
+      a.href = canvas.toDataURL('image/png');
+      a.click();
+    }).catch(() => alert('PNG export failed. Try right-clicking the table and saving as image.'));
+  };
+
+  if (typeof html2canvas === 'undefined') {
+    const s = document.createElement('script');
+    s.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';
+    s.onload = doExport;
+    s.onerror = () => alert('Could not load html2canvas library.');
+    document.head.appendChild(s);
+  } else {
+    doExport();
+  }
+}
+
+function exportCSV() {
+  if (!simResult) return;
+  const { insts, startCycle, stallsBefore, totalCycles, fwdPaths, forwarding, cacheHazards } = simResult;
+  const N = insts.length;
+
+  let csv = 'Instruction,' + Array.from({ length: totalCycles }, (_, i) => `C${i+1}`).join(',') + '\n';
+
+  for (let i = 0; i < N; i++) {
+    const s  = startCycle[i];
+    const st = stallsBefore[i];
+    const cells = [];
+
+    for (let c = 1; c <= totalCycles; c++) {
+      const si = c - s;
+      const inStall = st > 0 && c >= (s - st) && c < s;
+      if (inStall) {
+        cells.push('STALL');
+      } else if (si >= 0 && si < 5) {
+        const stage = STAGES[si];
+        const isFwd  = forwarding && fwdPaths.some(f => f.to === i && stage === 'EX');
+        const isMiss = cacheHazards.some(ch => ch.inst === i && stage === 'MEM');
+        cells.push(isMiss ? '$MISS' : (isFwd ? 'FWD' : stage));
+      } else {
+        cells.push('');
+      }
+    }
+    csv += `"I${i}: ${insts[i].text.trim()}",` + cells.join(',') + '\n';
+  }
+
+  csv += '\n--- Metrics ---\n';
+  csv += `Total Cycles,${totalCycles}\n`;
+  csv += `Instructions,${N}\n`;
+  csv += `CPI,${(totalCycles / N).toFixed(3)}\n`;
+  csv += `Efficiency,${((N / totalCycles) * 100).toFixed(1)}%\n`;
+  csv += `Data Hazards,${simResult.dataHazards.length}\n`;
+  csv += `Control Hazards,${simResult.ctrlHazards.length}\n`;
+  csv += `Structural Hazards,${simResult.structHazards.length}\n`;
+  csv += `Cache Misses,${simResult.cacheHazards.length}\n`;
+  csv += `Forwarding Paths,${simResult.fwdPaths.length}\n`;
+
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href     = url;
+  a.download = 'pipeline_sim.csv';
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+// ─── UTILS ───────────────────────────────────
+function esc(s) {
+  return String(s)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
+function setEl(id, val) {
+  const el = document.getElementById(id);
+  if (el) el.textContent = val;
+}
+
+function fmtHex(val) {
+  return '0x' + ((val >>> 0).toString(16).padStart(4, '0').toUpperCase());
+}
+
+</script>
+</body>
+</html>
